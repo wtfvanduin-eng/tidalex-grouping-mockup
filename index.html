@@ -225,6 +225,7 @@ aside select{width:100%;font:inherit;font-size:12.5px;padding:5px 6px;border:1px
 .cardx.outsidecard .fac,.cardx.outsidecard .fac .fk{color:#c3c9c8;border-color:#eceeed}
 .cond-tag{background:#faf7ec;border:1px solid #e0dcc9;color:#7a6f45;border-radius:2px;padding:0 5px;font-size:11px}
 </style>
+
 </head>
 <body>
 
@@ -385,7 +386,6 @@ $('#b-undo').onclick=()=>{const s=undo.pop(); if(!s)return;
         const p=byLoc.get(k); const nm=p?(p.heading||stepOf(k)):(D.acts[k.slice(4)]||{short_name:k}).short_name;
         note=t('keys.parent',{name:nm,n:fmt(all)}); render(); return; }
       flipNodes([k]); } });
-$('#b-clear').onclick=()=>{snap(t('undo.what.clear')); added.clear(); removed.clear(); if(curC&&SETS[setId]) SETS[setId].c[curC].m=[]; recompute(); render();};
 document.querySelector('.tabs').addEventListener('click',e=>{const a=e.target.closest('a[data-tab]'); if(a){tab=a.dataset.tab; render();}});
 
 function label(f,v){ if(v===NONE) return f==='actor'?'No actor found':'No category found'; return D.facets[f].values[v]?.label||v; }
@@ -228321,7 +228321,6 @@ button[data-action="clear-all"],
       const t=(b.textContent||'').trim();
       if(/^clear all$/i.test(t)||/review\s*&\s*finalise/i.test(t)||/^finalise requirement$/i.test(t))b.remove();
     });
-    const c=document.getElementById('b-clear');if(c)c.remove();
   }
 
   if(typeof renderPanel==='function'){const f=renderPanel;renderPanel=function(){f.apply(this,arguments);setTimeout(q36RenderResolved,0);};}
