@@ -228337,5 +228337,138 @@ button[data-action="clear-all"],
 })();
 </script>
 
+
+<script>
+/* Mockup 37 — robust self-contained bootstrap */
+(function(){
+  function boot37(){
+    try{
+      if(typeof D==='undefined' || !D || !D.provisions || !D.provisions.length){
+        const ld=document.getElementById('layerdata');
+        if(ld && typeof load==='function') load(JSON.parse(ld.textContent));
+      }
+
+      if(typeof WI!=='undefined' && !WI){
+        const wd=document.getElementById('widata');
+        if(wd && typeof useIndex==='function') useIndex(JSON.parse(wd.textContent));
+      }
+
+      if(typeof LISTS!=='undefined' && (!Array.isArray(LISTS) || !LISTS.length) && typeof initCluster==='function'){
+        initCluster();
+      }
+
+      const tdEl=document.getElementById('grouping-test-data');
+      if(tdEl && typeof SETS!=='undefined'){
+        const td=JSON.parse(tdEl.textContent);
+
+        /* Recreate test sets only when they are missing. */
+        const hasTests=Object.values(SETS||{}).some(s=>s && s.testData);
+        if(!hasTests){
+          const setMap={}, clusterMap={};
+
+          for(const ts of td.cluster_sets){
+            const sid='S'+(nextS++);
+            setMap[ts.id]=sid;
+            SETS[sid]={
+              name:ts.name,
+              category:ts.category,
+              saved:true,
+              from:null,
+              c:{},
+              next:1,
+              connections:{},
+              finalised:{},
+              standalone:[],
+              testData:true
+            };
+            clusterMap[ts.id]={};
+
+            for(const tc of ts.clusters){
+              const cid='C'+(SETS[sid].next++);
+              clusterMap[ts.id][tc.id]=cid;
+              SETS[sid].c[cid]={
+                name:tc.name,
+                type:ts.category,
+                m:[...tc.members],
+                from:null,
+                testData:true
+              };
+            }
+          }
+
+          const reqSid=setMap.TS_REQ, reqSt=SETS[reqSid];
+
+          for(const [rid, arr] of Object.entries(td.connections||{})){
+            const reqCid=clusterMap.TS_REQ[rid];
+            reqSt.connections[reqCid]=(arr||[]).map(x=>({
+              role:x.role,
+              targetType:x.target_type,
+              target:x.target_type==='cluster' ? clusterMap[x.target_set][x.target] : x.target,
+              targetSetId:x.target_type==='cluster' ? setMap[x.target_set] : null,
+              basis:'TEST DATA · workflow example',
+              origin:'test',
+              state:'in'
+            }));
+          }
+
+          /* One standalone Requirement Provision to exercise the workflow. */
+          reqSt.standalone=['EU:32022R2554:L1:ART28:P1'];
+
+          setId=reqSid;
+          curC=clusterMap.TS_REQ.R1;
+
+          if(typeof CONN14!=='undefined'){
+            CONN14.requirementSet=reqSid;
+            CONN14.requirementCluster=curC;
+            for(const role of (typeof CONTEXT_ROLES!=='undefined'?CONTEXT_ROLES:[])){
+              const ts=td.cluster_sets.find(x=>x.category===role);
+              if(ts) CONN14.roleSets[role]=setMap[ts.id];
+            }
+          }
+        } else {
+          /* Open the TEST Requirements set if nothing is currently selected. */
+          if(!setId){
+            const reqEntry=Object.entries(SETS).find(([,s])=>s && s.testData && s.category==='requirement');
+            if(reqEntry){
+              setId=reqEntry[0];
+              curC=Object.keys(reqEntry[1].c||{})[0]||null;
+            }
+          }
+        }
+      }
+
+      mode='shape';
+      tab='act';
+      showTid=true;
+
+      if(typeof fillLists==='function') fillLists();
+      if(typeof fillSets==='function') fillSets();
+      if(typeof recompute==='function') recompute();
+      if(typeof render==='function') render();
+
+      const tog=document.getElementById('tidtog');
+      if(tog) tog.checked=true;
+
+      /* Ensure the tree and right panel are visible after bootstrap. */
+      if(typeof renderTree==='function') renderTree();
+      if(typeof renderPanel==='function') renderPanel();
+
+    }catch(err){
+      console.error('Bootstrap 37 failed',err);
+      const body=document.getElementById('body');
+      if(body){
+        body.innerHTML='<div class="empt"><b>Mockup data failed to initialise.</b><br><br>'+String(err && err.message || err)+'</div>';
+      }
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(boot37,50));
+  }else{
+    setTimeout(boot37,50);
+  }
+})();
+</script>
+
 </body>
 </html>
