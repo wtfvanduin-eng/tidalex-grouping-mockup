@@ -274,9 +274,9 @@ Includes:
 
     <div class="card listbox">
       <div class="cardhead"><span class="eyebrow" id="lbl-work"></span><button type="button" class="more" data-more="m-work"></button></div>
-      <div class="btnrow"><button type="button" class="primary" id="b-work"></button></div>
+      <div class="btnrow"></div>
       <div class="meta" id="workcount"></div>
-      <div class="hidden morebox" id="m-work"><div class="btnrow"><button type="button" id="b-works"></button></div></div>
+      <div class="hidden morebox" id="m-work"><div class="btnrow"></div></div>
     </div>
 
     <div class="card listbox">
@@ -698,8 +698,8 @@ function initCluster(){
   $('#b-name').textContent=t('rename.btn'); $('#b-name').onclick=nameFromHeadings;
   $('#b-print').textContent=t('print.btn'); $('#b-print').onclick=printView;
   $('#b-export').textContent=t('left.set.export'); $('#b-import').textContent=t('left.set.import');
-  $('#b-work').textContent=t('work.use'); $('#b-works').textContent=t('work.open');
-  $('#b-work').onclick=startWork; $('#b-works').onclick=openWorks;
+  if($('#b-work')) $('#b-work').textContent=t('work.use'); if($('#b-works')) $('#b-works').textContent=t('work.open');
+  if($('#b-work')) $('#b-work').onclick=startWork; if($('#b-works')) $('#b-works').onclick=openWorks;
   $('#b-export').onclick=exportSet; $('#b-import').onclick=()=>$('#impfile').click();
   $('#impfile').onchange=async e=>{ const f=e.target.files[0]; if(f){ importText(await f.text(), f.name); } e.target.value=''; };
   $('#setsel').onchange=e=>{ const cur=CS();
@@ -1407,8 +1407,8 @@ T['left.layer']='Tidalex Law';
 T['left.layer.show']='Show Tidalex predefined clusters';
 T['left.set']='My legal model';
 T['left.work']='Provisional requirement';
-T['work.use']='Review & finalise';
-T['work.open']='Finalised';
+T['work.use']='';
+T['work.open']='';
 T['work.count.none']='Nothing finalised from this legal model yet.';
 T['work.count.some']='{n} finalised requirement(s).';
 T['mode.shape']='Provisions';
@@ -1430,10 +1430,10 @@ function roleText(r){ return CT_LABEL[r]||r; }
 const _initCluster=initCluster, _renderLeft=renderLeft, _renderPanel=renderPanel, _takeTid=takeTid, _newSet=newSet, _splitCluster=splitCluster;
 initCluster=function(){
   _initCluster();
-  $('#b-work').textContent='Review & finalise';
-  $('#b-works').textContent='Finalised';
-  $('#b-work').onclick=finaliseRequirement;
-  $('#b-works').onclick=openFinalised;
+  if($('#b-work')) $('#b-work').textContent='Review & finalise';
+  if($('#b-works')) $('#b-works').textContent='Finalised';
+  if($('#b-work')) $('#b-work').onclick=finaliseRequirement;
+  if($('#b-works')) $('#b-works').onclick=openFinalised;
   $('#tab-shape').textContent='Provisions';
   $('#tab-conn').textContent='Legal context';
 };
@@ -1560,7 +1560,7 @@ renderLeft=function(){
   $('#b-list').textContent='Manage Lists';
   const sel=$('#listsel'); if(sel&&sel.options[0])sel.options[0].textContent='All provisions (no List)';
   $('#lbl-layer').textContent='Tidalex Law'; $('#lbl-tid').textContent='Show predefined clusters';
-  $('#lbl-work').textContent='Provisional requirement'; $('#b-work').textContent='Review & finalise'; $('#b-works').textContent='Finalised';
+  $('#lbl-work').textContent='Provisional requirement'; if($('#b-work')) $('#b-work').textContent='Review & finalise'; if($('#b-works')) $('#b-works').textContent='Finalised';
   const wc=$('#workcount');
   if(wc){if(st&&curC&&st.c[curC]&&ctype(st.c[curC])==='requirement'){const n=connOf(curC).filter(x=>x.state!=='out').length;wc.innerHTML=`<b>${esc(st.c[curC].name)}</b><br>${fmt(st.c[curC].m.length)} Requirement Provisions · ${fmt(n)} legal-context connections<br>${st.saved?'Saved':'<b>Not saved yet</b>'}`;} else wc.textContent='Select a Requirement Cluster to review or finalise.';}
   const tb=$('#todobox'); if(tb&&st&&curC&&st.c[curC]&&ctype(st.c[curC])==='requirement'){
@@ -1704,12 +1704,12 @@ renderLeft=function(){
   $('#lbl-list').textContent='List';$('#b-list').textContent='Manage Scope Lists';const lsel=$('#listsel');if(lsel&&lsel.options[0])lsel.options[0].textContent='All provisions';const lm=$('#listcount');if(lm){const L=listLocs(),l=LISTS.find(x=>x.id===listId);lm.textContent=L&&l?`Scope List · ${fmt(L.size)} of ${fmt(D.provisions.length)} provisions`:`No Scope List selected. Showing all ${fmt(D.provisions.length)} provisions.`;}
   $('#lbl-set').textContent='Cluster Set';$('#b-newset').textContent='+ New Cluster Set';$('#b-saveset').textContent='Save';if(st){$('#listmeta').innerHTML=`Category: <b>${esc(SET_LABEL[setCategory(st)])}</b><br>${fmt(Object.keys(st.c).length)} clusters · ${st.saved?'Saved':'Not saved yet'}`;}else $('#listmeta').textContent='Create a Cluster Set, choose its category, then create clusters inside it.';
   $('#lbl-layer').textContent='Tidalex Law';$('#lbl-tid').textContent='Show predefined clusters';
-  syncConnRequirement();const q=req14(),wc=$('#workcount');$('#lbl-work').textContent='Provisional requirement';$('#b-work').textContent='Review & finalise';if(wc)wc.innerHTML=q?`<b>${esc(q.c.name)}</b><br>${fmt(q.c.m.length)} Requirement Provisions · ${fmt(conn14().filter(x=>x.state!=='out').length)} connections<br>${q.st.saved?'Saved':'<b>Not saved yet</b>'}`:'Create/select a Requirement Cluster, then connect its legal context.';
+  syncConnRequirement();const q=req14(),wc=$('#workcount');$('#lbl-work').textContent='Provisional requirement';if($('#b-work')) $('#b-work').textContent='Review & finalise';if(wc)wc.innerHTML=q?`<b>${esc(q.c.name)}</b><br>${fmt(q.c.m.length)} Requirement Provisions · ${fmt(conn14().filter(x=>x.state!=='out').length)} connections<br>${q.st.saved?'Saved':'<b>Not saved yet</b>'}`:'Create/select a Requirement Cluster, then connect its legal context.';
   const tb=$('#todobox');if(tb)tb.innerHTML=q?`<div><b>Next</b></div><div>✓ Requirement selected</div><div>${conn14().filter(x=>x.state!=='out').length?'✓':'○'} Legal context connected</div><div style="margin-top:6px;color:var(--mute)">Use Connections to select the Cluster Sets for Scoping, Foundational, Definition and the other categories.</div>`:`<div><b>Start here</b></div><div>1. Optionally select a List from Scope.</div><div>2. Create a Cluster Set and choose its category.</div><div>3. Create clusters inside that set.</div><div>4. In Connections, select the Requirement and context Cluster Sets.</div>`;
 };
 
 const _init14=initCluster;
-initCluster=function(){_init14();$('#tab-shape').textContent='Provisions';$('#tab-conn').textContent='Connections';$('#tab-conn').title='Select a Requirement Cluster and connect Scoping, Foundational, Definitional and other context from their Cluster Sets.';$('#b-newset').onclick=newSet;$('#b-work').onclick=finaliseRequirement;};
+initCluster=function(){_init14();$('#tab-shape').textContent='Provisions';$('#tab-conn').textContent='Connections';$('#tab-conn').title='Select a Requirement Cluster and connect Scoping, Foundational, Definitional and other context from their Cluster Sets.';$('#b-newset').onclick=newSet;if($('#b-work')) $('#b-work').onclick=finaliseRequirement;};
 
 </script>
 <script id="layerdata" type="application/json">{
@@ -228466,6 +228466,572 @@ button[data-action="clear-all"],
   }else{
     setTimeout(boot37,50);
   }
+})();
+</script>
+
+
+<style>
+/* Mockup 38 — compliance-officer workflow hardening */
+.qa38-toast{position:fixed;right:22px;bottom:22px;z-index:9999;max-width:430px;background:#14201f;color:#fff;padding:11px 14px;border-radius:3px;box-shadow:0 8px 28px rgba(0,0,0,.2);font-size:12.5px;line-height:1.45}
+.qa38-toast b{color:#fff}
+.qa38-filterbar{display:flex;gap:5px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--line);background:#fbfcfc}
+.qa38-filterbar button{padding:4px 7px}
+.qa38-filterbar button.on{background:var(--tidal-tint);border-color:var(--tidal);color:var(--tidal-deep)}
+.qa38-single-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;padding:8px 10px;border-top:1px solid #eef1f0;cursor:pointer}
+.qa38-single-row:hover,.qa38-single-row.on{background:var(--tidal-tint)}
+.qa38-single-row .nm{font-weight:600}
+.qa38-single-row .meta{font-size:11px;color:var(--mute)}
+.qa38-single-row .ready{font-size:11px;color:var(--tidal-deep);white-space:nowrap}
+.qa38-single-row .not{font-size:11px;color:var(--mute);white-space:nowrap}
+.qa38-why{margin:7px 0 2px;font-size:11.5px;color:var(--mute)}
+.qa38-why summary{cursor:pointer;color:var(--tidal-deep)}
+.qa38-why .basis{margin-top:5px;padding:7px 8px;background:#fbfcfc;border-left:2px solid var(--tidal)}
+.qa38-provenance{margin:8px 0 0;padding:9px 10px;background:#fbfcfc;border:1px solid var(--line);font-size:11.5px;line-height:1.5}
+.qa38-provenance b{font-weight:600}
+.qa38-resolved{border-top:1px solid var(--line);margin-top:8px}
+.qa38-resolved-head{padding:10px 14px;background:#fbfcfc}
+.qa38-resolved-head .meta{font-size:11.5px;color:var(--mute);margin-top:2px}
+.qa38-resolved-search{width:100%;margin-top:8px;padding:6px 8px;border:1px solid var(--line);font:inherit}
+.qa38-resolved details{border-top:1px solid var(--line)}
+.qa38-resolved summary{padding:9px 14px;cursor:pointer;font-weight:600}
+.qa38-resolved-row{padding:8px 14px;border-top:1px solid #eef1f0;background:#fff}
+.qa38-resolved-row .nm{font-weight:600}
+.qa38-resolved-row .meta{font-size:11px;color:var(--mute);margin-top:2px}
+.qa38-partial{display:inline-block;margin-left:6px;padding:1px 5px;background:var(--tidal-tint);border:1px solid #cfe4e6;color:var(--tidal-deep);font-size:10.5px}
+.qa38-version{font-size:11px;color:var(--mute);margin-top:5px}
+.qa38-impact{padding:9px 10px;margin:8px 0;background:#fff8e8;border:1px solid #ead8ad;font-size:12px;line-height:1.5}
+</style>
+<script>
+/* ===== Mockup 38 — compliance-officer workflow hardening ===== */
+(function(){
+  let ACTIVE38={type:'cluster',id:null};
+  let FILTER38='all';
+
+  function toast38(html){
+    document.querySelectorAll('.qa38-toast').forEach(x=>x.remove());
+    const x=document.createElement('div');x.className='qa38-toast';x.innerHTML=html;document.body.appendChild(x);
+    setTimeout(()=>x.remove(),4500);
+  }
+  function map38(){return typeof lcm20Current==='function'?lcm20Current():null;}
+  function set38(){const m=map38();return m&&SETS[m.requirementSetId]||null;}
+  function label38(a){
+    try{const r=refOf(a),i=r.indexOf(' – ');return {ref:i<0?r:r.slice(0,i),rest:i<0?'':r.slice(i+3)};}catch(e){return {ref:a,rest:''};}
+  }
+  function key38(type,id){return type==='provision'?'P:'+id:'C:'+id;}
+  function status38(type,id){
+    if(typeof dep33Status!=='function')return {ready:{state:'not_reviewed'},assessment:{state:'not_assessed'}};
+    return dep33Status(key38(type,id));
+  }
+  function version38(q){
+    try{
+      const lines=conn14().filter(x=>x.state!=='out').map(x=>`${x.role}|${x.targetType||'provision'}|${x.targetSetId||''}|${x.target}`).sort();
+      const raw=[...(q.c.m||[])].sort().join('|')+'||'+lines.join('||');
+      return typeof hash==='function'?hash(raw):String(raw.length);
+    }catch(e){return '—';}
+  }
+
+  /* Standalone Requirement Provisions become full Requirement items. */
+  const oldReq14_38 = typeof req14==='function'?req14:null;
+  if(oldReq14_38){
+    req14=function(){
+      const st=set38(),m=map38();
+      if(ACTIVE38.type==='provision'&&st&&(st.standalone||[]).includes(ACTIVE38.id)){
+        const a=ACTIVE38.id,p=byLoc&&byLoc.get(a),lb=label38(a);
+        return {sid:m.requirementSetId,cid:'P:'+a,st,c:{name:lb.ref,type:'requirement',m:[a],standalone:true,address:a}};
+      }
+      const q=oldReq14_38();
+      if(q){ACTIVE38={type:'cluster',id:q.cid};}
+      return q;
+    };
+  }
+
+  /* Persist active Requirement item, not only last cluster. */
+  if(typeof lcm20Capture==='function'){
+    const f=lcm20Capture;
+    lcm20Capture=function(){f.apply(this,arguments);const m=map38();if(m)m.lastRequirementItem={...ACTIVE38};};
+  }
+  if(typeof lcm20Apply==='function'){
+    const f=lcm20Apply;
+    lcm20Apply=function(m){const r=f.apply(this,arguments);if(m&&m.lastRequirementItem)ACTIVE38={...m.lastRequirementItem};else ACTIVE38={type:'cluster',id:m&&m.lastRequirementClusterId||null};return r;};
+  }
+
+  /* Assessment invalidation: notify only when there really was a current completed assessment. */
+  if(typeof dep33Invalidate==='function'){
+    const f=dep33Invalidate;
+    dep33Invalidate=function(key,reason){
+      let had=false;
+      try{const s=dep33Status(key);had=s&&s.assessment&&s.assessment.state==='assessed';}catch(e){}
+      const r=f.apply(this,arguments);
+      if(had)toast38(`<b>Assessment reset to Not assessed.</b><br>${esc(reason||'Grouping changed.')} Previous result retained in audit history.`);
+      return r;
+    };
+  }
+
+  function impactedByContext38(sid,cid){
+    const m=map38(),rst=m&&SETS[m.requirementSetId];if(!m||!rst)return [];
+    const out=[];
+    for(const [rid,arr] of Object.entries(rst.connections||{})){
+      if((arr||[]).some(x=>x.state!=='out'&&x.targetType==='cluster'&&x.targetSetId===sid&&x.target===cid)) out.push(rid);
+    }
+    return out;
+  }
+
+  /* Cascade impact when reused context clusters change, and invalidate edited Requirement membership. */
+  if(typeof flipNodes==='function'){
+    const f=flipNodes;
+    flipNodes=function(keys){
+      const st=typeof CS==='function'?CS():null;
+      const cat=st&&typeof setCategory==='function'?setCategory(st):null;
+      let impacted=[], assessed=0;
+      if(st&&curC&&cat&&cat!=='requirement'){
+        impacted=impactedByContext38(setId,curC);
+        for(const rid of impacted){
+          const k=rid.startsWith('P:')?rid:'C:'+rid;
+          try{if(dep33Status(k).assessment.state==='assessed')assessed++;}catch(e){}
+        }
+        if(assessed){
+          const ok=confirm(`This context cluster is used by ${impacted.length} Requirement item(s).\n${assessed} completed Assessment(s) will become Not assessed.\n\nContinue with this change?`);
+          if(!ok)return;
+        }
+      }
+      const result=f.apply(this,arguments);
+      if(st&&curC&&cat==='requirement'){
+        try{dep33Invalidate('C:'+curC,'Requirement Provision membership changed');}catch(e){}
+      }
+      if(impacted.length){
+        impacted.forEach(rid=>{try{dep33Invalidate(rid.startsWith('P:')?rid:'C:'+rid,'Connected Legal Context cluster changed');}catch(e){}});
+        toast38(`<b>${fmt(impacted.length)} Requirement item${impacted.length===1?'':'s'} affected.</b><br>Readiness and completed Assessments were refreshed where necessary.`);
+      }
+      return result;
+    };
+  }
+
+  /* No global unmodified single-key shortcuts. Alt+N / Alt+P remain available. */
+  document.addEventListener('keydown',e=>{
+    const tag=(e.target&&e.target.tagName)||'';
+    if(/INPUT|TEXTAREA|SELECT/.test(tag))return;
+    if(!e.altKey && !e.ctrlKey && !e.metaKey && /^[npfjkxr]$/i.test(e.key)){
+      e.stopImmediatePropagation(); return;
+    }
+    if(e.altKey&&e.key.toLowerCase()==='n'){const b=document.getElementById('nextreq25')||document.querySelector('[data-next38]');if(b){e.preventDefault();b.click();}}
+    if(e.altKey&&e.key.toLowerCase()==='p'){const b=document.getElementById('prevreq25');if(b){e.preventDefault();b.click();}}
+  },true);
+
+  function addStandalonePicker38(){
+    const picker=document.querySelector('.lcm20-picker');const st=set38();if(!picker||!st)return;
+    picker.querySelectorAll('.qa38-single-wrap,.qa38-filterbar').forEach(x=>x.remove());
+
+    const fb=document.createElement('div');fb.className='qa38-filterbar';
+    fb.innerHTML=['all','not','ready','assessed','changed'].map(x=>`<button data-f38="${x}" class="${FILTER38===x?'on':''}">${x==='all'?'All':x==='not'?'Not reviewed':x==='ready'?'Ready':x==='assessed'?'Assessed':'Changed'}</button>`).join('')
+      +`<button data-next38="1" style="margin-left:auto">Next not reviewed</button>`;
+    picker.prepend(fb);
+    fb.querySelectorAll('[data-f38]').forEach(b=>b.onclick=e=>{e.stopPropagation();FILTER38=b.dataset.f38;filterPicker38();addStandalonePicker38();});
+    fb.querySelector('[data-next38]').onclick=e=>{e.stopPropagation();nextNotReviewed38();};
+
+    const wrap=document.createElement('div');wrap.className='qa38-single-wrap';
+    const singles=st.standalone||[];
+    if(singles.length)wrap.innerHTML=`<div class="eyebrow" style="padding:9px 10px 4px">Standalone Requirement Provisions</div>`+singles.map(a=>{
+      const x=label38(a),s=status38('provision',a),ready=s.ready.state==='ready';
+      const ass=s.assessment.state,changed=!!s.assessment.invalidatedAt;
+      return `<div class="qa38-single-row ${ACTIVE38.type==='provision'&&ACTIVE38.id===a?'on':''}" data-req38="${esc(a)}" data-state38="${changed?'changed':ass==='assessed'?'assessed':ready?'ready':'not'}">
+        <div><div class="nm">${esc(x.ref)}</div><div class="meta">${esc(x.rest)}</div></div>
+        <span class="${ready?'ready':'not'}">${ready?'✓ Ready':'Not reviewed'}</span>
+        <button data-ready38="${esc(a)}">${ready?'Reopen':'Mark ready'}</button>
+      </div>`;
+    }).join('');
+    picker.appendChild(wrap);
+
+    wrap.querySelectorAll('[data-req38]').forEach(r=>r.onclick=e=>{
+      if(e.target.closest('[data-ready38]'))return;
+      ACTIVE38={type:'provision',id:r.dataset.req38};
+      const m=map38();if(m){m.lastRequirementItem={...ACTIVE38};m.lastRequirementClusterId=null;}
+      LCM20.requirementPickerOpen=false;lcm20MarkDirty();renderConn();renderLeft();
+    });
+    wrap.querySelectorAll('[data-ready38]').forEach(b=>b.onclick=e=>{e.stopPropagation();dep33ToggleSingle(b.dataset.ready38);});
+    filterPicker38();
+  }
+  function clusterState38(cid){
+    const s=status38('cluster',cid),ready=s.ready.state==='ready',ass=s.assessment.state,changed=!!s.assessment.invalidatedAt;
+    return changed?'changed':ass==='assessed'?'assessed':ready?'ready':'not';
+  }
+  function filterPicker38(){
+    const picker=document.querySelector('.lcm20-picker');if(!picker)return;
+    picker.querySelectorAll('[data-req20]').forEach(r=>{
+      const st=FILTER38==='all'?true:clusterState38(r.dataset.req20)===FILTER38;r.style.display=st?'':'none';
+    });
+    picker.querySelectorAll('[data-req38]').forEach(r=>{
+      const st=FILTER38==='all'?true:r.dataset.state38===FILTER38;r.style.display=st?'':'none';
+    });
+  }
+  function allItems38(){
+    const st=set38();if(!st)return[];
+    return [...Object.keys(st.c||{}).map(id=>({type:'cluster',id})),...(st.standalone||[]).map(id=>({type:'provision',id}))];
+  }
+  function nextNotReviewed38(){
+    const items=allItems38(),cur=items.findIndex(x=>x.type===ACTIVE38.type&&x.id===ACTIVE38.id);
+    for(let z=1;z<=items.length;z++){
+      const x=items[(cur+z+items.length)%items.length];
+      if(status38(x.type,x.id).ready.state!=='ready'){
+        if(x.type==='cluster'){
+          ACTIVE38=x;CONN14.requirementCluster=x.id;const m=map38();if(m)m.lastRequirementClusterId=x.id;
+        }else ACTIVE38=x;
+        LCM20.requirementPickerOpen=false;renderConn();renderLeft();return;
+      }
+    }
+    toast38('<b>Nothing outstanding.</b><br>All Requirement items are marked Ready.');
+  }
+
+  /* Explain every saved connection and support controlled reuse. */
+  function whyConnections38(){
+    const q=typeof req14==='function'?req14():null;if(!q)return;
+    const lines=conn14();
+    document.querySelectorAll('.ctx18-item.connected,.ctx18-singleconn').forEach(el=>{
+      if(el.querySelector('.qa38-why'))return;
+      const rm=el.querySelector('[data-rm20]');if(!rm)return;
+      const idx=+rm.dataset.rm20,x=lines[idx];if(!x)return;
+      const d=document.createElement('details');d.className='qa38-why';
+      d.innerHTML=`<summary>Why connected?</summary><div class="basis">${esc(x.basis||'Added by compliance officer.')}${x.origin?`<br><span style="color:var(--mute)">Origin: ${esc(x.origin==='layer'?'TLEX/layer suggestion':x.origin)}</span>`:''}<br><button class="more" data-bulk38="${idx}">Connect to other Requirements…</button></div>`;
+      el.appendChild(d);
+      d.querySelector('[data-bulk38]').onclick=e=>{e.preventDefault();e.stopPropagation();bulkConnect38(idx);};
+    });
+  }
+  function bulkConnect38(idx){
+    const q=req14(),lines=conn14(),x=lines[idx],st=set38();if(!q||!x||!st)return;
+    const current=q.cid;
+    const targets=allItems38().filter(y=>key38(y.type,y.id)!==(current.startsWith('P:')?current:'C:'+current));
+    $('#dlgtitle').textContent='Connect context to other Requirements';
+    $('#dlgbody').innerHTML=`<p><b>${esc(x.role)}</b> context can be reused on other Requirement items.</p>`+
+      targets.map(t=>{
+        const k=t.type==='provision'?'P:'+t.id:t.id;
+        const c=t.type==='cluster'?st.c[t.id]:null,lb=t.type==='provision'?label38(t.id):null;
+        const s=status38(t.type,t.id),ass=s.assessment.state==='assessed';
+        return `<label class="ci" style="display:block;cursor:pointer"><input type="checkbox" data-bulk-target38="${esc(k)}" style="margin-right:8px"><b>${esc(c?c.name:lb.ref)}</b><div class="d">${t.type==='cluster'?'Requirement Cluster':'Standalone Requirement Provision'}${ass?' · Assessed — will become Not assessed':''}</div></label>`;
+      }).join('')+
+      `<div class="btnrow" style="margin-top:12px"><button class="primary" id="applybulk38">Connect selected</button><button id="cancelbulk38">Cancel</button></div>`;
+    $('#cancelbulk38').onclick=()=>dlg.close();
+    $('#applybulk38').onclick=()=>{
+      const ks=[...$('#dlgbody').querySelectorAll('[data-bulk-target38]:checked')].map(z=>z.dataset.bulkTarget38);if(!ks.length){dlg.close();return;}
+      const assessed=ks.filter(k=>{try{return dep33Status(k.startsWith('P:')?k:'C:'+k).assessment.state==='assessed';}catch(e){return false;}}).length;
+      if(assessed&&!confirm(`${assessed} completed Assessment(s) will become Not assessed because their legal context is changing.\n\nContinue?`))return;
+      ks.forEach(k=>{
+        const storeKey=k.startsWith('P:')?k:k;
+        st.connections[storeKey]=st.connections[storeKey]||[];
+        if(!st.connections[storeKey].some(y=>y.state!=='out'&&key14(y)===key14(x)&&y.role===x.role)){
+          st.connections[storeKey].push({...JSON.parse(JSON.stringify(x)),origin:'own',basis:(x.basis||'')+' · reused by compliance officer'});
+          try{dep33Invalidate(k.startsWith('P:')?k:'C:'+k,'Legal Context connection added');}catch(e){}
+        }
+      });
+      lcm20MarkDirty();dlg.close();toast38(`<b>Context connected to ${ks.length} Requirement item${ks.length===1?'':'s'}.</b>`);renderConn();renderLeft();
+    };
+    dlg.showModal();
+  }
+
+  /* Provenance and current legal/source version. */
+  function provenance38(){
+    const cp=document.getElementById('cpanel'),st=typeof CS==='function'?CS():null;if(!cp||!st)return;
+    cp.querySelectorAll('.qa38-provenance').forEach(x=>x.remove());
+    const box=document.createElement('div');box.className='qa38-provenance';
+    const lst=(typeof listId!=='undefined'&&listId&&LISTS)?LISTS.find(x=>x.id===listId):null;
+    let ctext='';
+    if(curC&&st.c&&st.c[curC]){
+      const c=st.c[curC];
+      if(c.from){
+        let plus=0,minus=0;
+        try{const lay=layerOf(c);if(lay){const a=new Set(lay.c.addresses),b=new Set(c.m);plus=[...b].filter(x=>!a.has(x)).length;minus=[...a].filter(x=>!b.has(x)).length;}}catch(e){}
+        ctext=`<br><b>Selected cluster:</b> ${esc(c.name)} · Modified from TLEX: +${fmt(plus)} / −${fmt(minus)}`;
+      }else ctext=`<br><b>Selected cluster:</b> ${esc(c.name)} · Officer-created`;
+    }
+    box.innerHTML=`<b>Current working source</b><br>Scope List: ${lst?esc(lst.name)+' · '+fmt(lst.set.size)+' provisions':'All provisions'}<br>TLEX layer: v${esc(D&&D.version||'—')} · build ${esc(D&&D.build||'—')}${ctext}`;
+    const first=cp.firstElementChild;if(first)first.appendChild(box);else cp.appendChild(box);
+  }
+
+  /* Compact resolved TLEX view: search + progressive disclosure + row cap. */
+  function resolve38(){
+    if(!TID||!TID.clusters)return {clusters:[],singles:[],list:null};
+    const lst=listId&&LISTS.find(x=>x.id===listId),L=lst&&lst.set,represented=new Set(),clusters=[];
+    for(const [id,c] of Object.entries(TID.clusters)){
+      const all=c.addresses||[],vis=L?all.filter(a=>L.has(a)):[...all];if(L&&!vis.length)continue;vis.forEach(a=>represented.add(a));
+      clusters.push({id,c,name:titleOf(c.starts_at),vis,total:all.length});
+    }
+    return {clusters,singles:L?[...L].filter(a=>!represented.has(a)):[],list:lst};
+  }
+  function resolved38(){
+    if(mode!=='shape'||!showTid)return;
+    const cp=document.getElementById('cpanel');if(!cp)return;
+    cp.querySelectorAll('.qa36-resolved,.tlex32-zone,.qa38-resolved').forEach(x=>x.remove());
+    const r=resolve38(),w=document.createElement('div');w.className='qa38-resolved';
+    w.innerHTML=`<div class="qa38-resolved-head"><b>TLEX resolved view</b><div class="meta">${r.list?`${fmt(r.clusters.length)} related clusters · ${fmt(r.singles.length)} standalone provisions in “${esc(r.list.name)}”`:`${fmt(r.clusters.length)} canonical clusters · no Scope List selected`}</div><input class="qa38-resolved-search" id="q38r" placeholder="Search resolved clusters or provisions"></div>
+      <details><summary>Related TLEX clusters (${fmt(r.clusters.length)})</summary><div id="q38clusters"></div></details>
+      <details><summary>Standalone Provisions (${fmt(r.singles.length)})</summary><div id="q38singles"></div></details>`;
+    cp.appendChild(w);
+    const draw=()=>{
+      const q=($('#q38r').value||'').toLowerCase().trim();
+      const cs=r.clusters.filter(x=>!q||x.name.toLowerCase().includes(q)||x.id.toLowerCase().includes(q)).slice(0,40);
+      $('#q38clusters').innerHTML=cs.map(x=>`<div class="qa38-resolved-row"><div class="nm">${esc(x.name)}${r.list&&x.vis.length!==x.total?`<span class="qa38-partial">${fmt(x.vis.length)} of ${fmt(x.total)} in this List</span>`:`<span class="qa38-partial">${fmt(x.total)} provisions</span>`}</div><div class="meta">${esc(x.id)}</div><button style="margin-top:5px" data-use38="${esc(x.id)}">Use as baseline</button></div>`).join('')+(r.clusters.length>40&&!q?`<div class="empt">Showing first 40. Search to narrow the list.</div>`:'');
+      const ss=r.singles.filter(a=>{const z=label38(a);return !q||(z.ref+' '+z.rest).toLowerCase().includes(q);}).slice(0,40);
+      $('#q38singles').innerHTML=ss.map(a=>{const z=label38(a);return `<div class="qa38-resolved-row"><div class="nm">${esc(z.ref)}</div><div class="meta">${esc(z.rest)}</div></div>`;}).join('')+(r.singles.length>40&&!q?`<div class="empt">Showing first 40. Search to narrow the list.</div>`:'');
+      w.querySelectorAll('[data-use38]').forEach(b=>b.onclick=()=>{try{takeTid(b.dataset.use38);}catch(e){console.error(e)}});
+    };
+    $('#q38r').oninput=draw;draw();
+  }
+
+  /* Add grouping fingerprint to preview and Assessment package. */
+  function versionLabel38(){
+    const q=req14();if(!q)return;
+    const v=version38(q);
+    const dlgbody=document.getElementById('dlgbody');
+    if(dlgbody&&/Preview only/.test(dlgbody.textContent||'')&&!dlgbody.querySelector('.qa38-version')){
+      const p=dlgbody.querySelector('p');const x=document.createElement('div');x.className='qa38-version';x.textContent=`Grouping version ${v} · TLEX build ${D&&D.build||'—'}`;p&&p.after(x);
+    }
+  }
+
+  /* Final render hooks. */
+  if(typeof renderConn==='function'){
+    const f=renderConn;
+    renderConn=function(){
+      const r=f.apply(this,arguments);
+      setTimeout(()=>{
+        addStandalonePicker38();whyConnections38();versionLabel38();
+        document.querySelectorAll('[data-req20]').forEach(el=>el.addEventListener('click',()=>{ACTIVE38={type:'cluster',id:el.dataset.req20};}, {capture:true,once:true}));
+      },0);
+      return r;
+    };
+  }
+  if(typeof renderPanel==='function'){
+    const f=renderPanel;
+    renderPanel=function(){const r=f.apply(this,arguments);setTimeout(()=>{provenance38();resolved38();},0);return r;};
+  }
+  document.addEventListener('click',()=>setTimeout(versionLabel38,0));
+
+  setTimeout(()=>{try{const q=oldReq14_38&&oldReq14_38();if(q)ACTIVE38={type:'cluster',id:q.cid};provenance38();resolved38();}catch(e){console.error(e)}},0);
+})();
+</script>
+
+
+<style>
+/* Mockup 39 — workflow coherence / information architecture cleanup */
+.ia39-current{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:9px 14px;
+  border-bottom:1px solid var(--line);
+  background:#fbfcfc;
+  min-height:48px;
+}
+.ia39-current .eyebrow{flex:none}
+.ia39-current .main{min-width:0;flex:1}
+.ia39-current .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ia39-current .meta{font-size:11.5px;color:var(--mute);margin-top:1px}
+.ia39-task{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  font-size:11.5px;
+  color:var(--mute);
+}
+.ia39-task b{color:var(--ink)}
+.ia39-task button{padding:4px 7px}
+.ia39-left-note{
+  padding:8px 12px;
+  font-size:11.5px;
+  color:var(--mute);
+  border-top:1px solid var(--line);
+}
+</style>
+
+<script>
+/* ===== Mockup 39 — put information next to the task it belongs to ===== */
+(function(){
+
+  function closestCard39(el){
+    return el && (el.closest('.card') || el.parentElement);
+  }
+
+  function removeWrongLeftBlocks39(){
+    /* Provisional Requirement is selection-dependent detail, not persistent navigation. */
+    const work=document.getElementById('lbl-work');
+    const workCard=closestCard39(work);
+    if(workCard) workCard.style.display='none';
+
+    /* "Still to look at" belongs to the Connections task, not the global left rail. */
+    const todo=document.getElementById('todobox');
+    const todoCard=closestCard39(todo);
+    if(todoCard) todoCard.style.display='none';
+
+    /* Permanent instructional copy is guidance, not a navigation block. */
+    const how=document.getElementById('howbox');
+    const howCard=closestCard39(how);
+    if(howCard) howCard.style.display='none';
+  }
+
+  function selectedCluster39(){
+    try{
+      const st=typeof CS==='function'?CS():null;
+      if(!st||!curC||!st.c||!st.c[curC]) return null;
+      return {st,c:st.c[curC],cid:curC};
+    }catch(e){return null;}
+  }
+
+  function currentConnections39(){
+    try{
+      if(typeof conn14==='function') return conn14().filter(x=>x.state!=='out').length;
+      if(typeof connOf==='function' && curC) return connOf(curC).filter(x=>x.state!=='out').length;
+    }catch(e){}
+    return 0;
+  }
+
+  function ensureCurrent39(){
+    const mid=document.querySelector('section.mid');
+    const tabs=mid&&mid.querySelector('.tabs');
+    if(!mid||!tabs) return null;
+
+    let bar=document.getElementById('ia39-current');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='ia39-current';
+      bar.className='ia39-current';
+      tabs.after(bar);
+    }
+    return bar;
+  }
+
+  function renderCurrent39(){
+    const bar=ensureCurrent39();
+    if(!bar) return;
+
+    /* Connections already has its own Requirement workspace header. */
+    if(typeof mode!=='undefined' && mode==='conn'){
+      bar.style.display='none';
+      return;
+    }
+
+    const q=selectedCluster39();
+    if(!q){
+      bar.style.display='flex';
+      bar.innerHTML=`
+        <span class="eyebrow">Selected cluster</span>
+        <div class="main">
+          <div class="name">No cluster selected</div>
+          <div class="meta">Choose a cluster on the right to view or edit it.</div>
+        </div>`;
+      return;
+    }
+
+    const type=(q.c.type||'requirement');
+    const typeLabel=(typeof CT_LABEL!=='undefined'&&CT_LABEL[type])?CT_LABEL[type]:type;
+    const count=(q.c.m||[]).length;
+    const conn=type==='requirement'?currentConnections39():null;
+
+    bar.style.display='flex';
+    bar.innerHTML=`
+      <span class="eyebrow">Selected cluster</span>
+      <div class="main">
+        <div class="name">${esc(q.c.name)}</div>
+        <div class="meta">${esc(typeLabel)} cluster · ${fmt(count)} provision${count===1?'':'s'}${conn!==null?` · ${fmt(conn)} Legal Context connection${conn===1?'':'s'}`:''}</div>
+      </div>`;
+  }
+
+  function taskSummary39(){
+    if(typeof mode==='undefined'||mode!=='conn') return;
+    const q=typeof req14==='function'?req14():null;
+    const m=typeof lcm20Current==='function'?lcm20Current():null;
+    const st=m&&SETS[m.requirementSetId];
+    if(!q||!m||!st) return;
+
+    /* Put task status next to Requirement navigation. */
+    const reqHead=document.querySelector('.lcm20-reqhead,.conn18-reqhead,.conn17-reqhead');
+    const host=reqHead || document.querySelector('.conn15-left') || document.querySelector('#body');
+    if(!host) return;
+
+    host.querySelectorAll('.ia39-task').forEach(x=>x.remove());
+
+    let clusters=Object.keys(st.c||{}), singles=st.standalone||[];
+    let notReviewed=0, ready=0, assessed=0, changed=0;
+
+    const readState=(type,id)=>{
+      try{
+        const s=typeof dep33Status==='function'?dep33Status((type==='provision'?'P:':'C:')+id):null;
+        if(!s) return 'not';
+        if(s.assessment&&s.assessment.invalidatedAt) return 'changed';
+        if(s.assessment&&s.assessment.state==='assessed') return 'assessed';
+        if(s.ready&&s.ready.state==='ready') return 'ready';
+      }catch(e){}
+      return 'not';
+    };
+
+    clusters.forEach(id=>{
+      const s=readState('cluster',id);
+      if(s==='changed')changed++; else if(s==='assessed')assessed++; else if(s==='ready')ready++; else notReviewed++;
+    });
+    singles.forEach(id=>{
+      const s=readState('provision',id);
+      if(s==='changed')changed++; else if(s==='assessed')assessed++; else if(s==='ready')ready++; else notReviewed++;
+    });
+
+    const task=document.createElement('div');
+    task.className='ia39-task';
+    task.innerHTML=`
+      <b>${fmt(notReviewed)} not reviewed</b>
+      ${ready?`<span>· ${fmt(ready)} ready</span>`:''}
+      ${assessed?`<span>· ${fmt(assessed)} assessed</span>`:''}
+      ${changed?`<span>· ${fmt(changed)} changed</span>`:''}
+      <button id="ia39-next">Next not reviewed</button>`;
+    host.appendChild(task);
+
+    const nb=document.getElementById('ia39-next');
+    if(nb) nb.onclick=()=>{
+      if(typeof nextNotReviewed38==='function') nextNotReviewed38();
+      else{
+        const b=document.querySelector('[data-next38]');
+        if(b)b.click();
+      }
+    };
+  }
+
+  function compactTidalex39(){
+    /* Keep the Tidalex switch because it changes the working source,
+       but remove explanatory clutter from the persistent rail. */
+    const meta=document.getElementById('tidmeta');
+    if(meta && typeof TID!=='undefined' && TID){
+      meta.textContent=`${fmt(TID.count||Object.keys(TID.clusters||{}).length)} predefined clusters · read only`;
+    }
+  }
+
+  function apply39(){
+    removeWrongLeftBlocks39();
+    renderCurrent39();
+    taskSummary39();
+    compactTidalex39();
+  }
+
+  if(typeof render==='function'){
+    const f=render;
+    render=function(){
+      const r=f.apply(this,arguments);
+      setTimeout(apply39,0);
+      return r;
+    };
+  }
+  if(typeof renderConn==='function'){
+    const f=renderConn;
+    renderConn=function(){
+      const r=f.apply(this,arguments);
+      setTimeout(apply39,0);
+      return r;
+    };
+  }
+  if(typeof renderPanel==='function'){
+    const f=renderPanel;
+    renderPanel=function(){
+      const r=f.apply(this,arguments);
+      setTimeout(apply39,0);
+      return r;
+    };
+  }
+
+  setTimeout(apply39,0);
 })();
 </script>
 
