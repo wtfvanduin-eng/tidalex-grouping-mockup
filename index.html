@@ -290,7 +290,7 @@ Includes:
   </aside>
   <section class="mid card">
     <div class="tabs"><a class="on" data-tab="act" id="tab-shape">Act</a><a data-tab="conn" id="tab-conn"></a>
-      <div class="tools"><button type="button" id="b-undo" disabled>Undo</button><button type="button" id="b-redo" disabled>Redo</button><button type="button" id="b-clear">Clear all</button><span class="sub" id="keyhint" style="margin-left:8px;font-size:11px;cursor:default">keys</span></div></div>
+      <div class="tools"><button type="button" id="b-undo" disabled>Undo</button><button type="button" id="b-redo" disabled>Redo</button><span class="sub" id="keyhint" style="margin-left:8px;font-size:11px;cursor:default">keys</span></div></div>
     <div class="bar" id="bar"></div>
     <div class="body" id="body"></div>
   </section>
@@ -228132,6 +228132,208 @@ setTimeout(()=>{try{render();}catch(e){console.error(e)}},0);
     $('#dep34close').onclick=()=>dlg.close();
     dlg.showModal();
   };
+})();
+</script>
+
+
+<style>
+/* Mockup 35 — remove ambiguous/destructive Clear all from top toolbar */
+button#clearall,
+#clearall,
+button[data-action="clear-all"],
+.clear-all,
+.toolbar button.clearall {
+  display:none !important;
+}
+</style>
+
+<script>
+/* Mockup 35 — defensively remove any visible "Clear all" toolbar action */
+(function(){
+  function removeClearAll35(){
+    document.querySelectorAll('button').forEach(b=>{
+      const t=(b.textContent||'').trim().toLowerCase();
+      if(t==='clear all'){
+        b.remove();
+      }
+    });
+  }
+
+  const _render35 = typeof render==='function' ? render : null;
+  if(_render35){
+    render = function(){
+      const r=_render35.apply(this,arguments);
+      setTimeout(removeClearAll35,0);
+      return r;
+    };
+  }
+
+  setTimeout(removeClearAll35,0);
+})();
+</script>
+
+
+<style>
+/* Mockup 36 — consolidated compliance-officer QA fixes */
+.qa36-resolved{border-top:1px solid var(--line);margin-top:8px}
+.qa36-head{padding:10px 14px;background:#fbfcfc;border-bottom:1px solid var(--line)}
+.qa36-head .title{font-weight:600}
+.qa36-head .meta{font-size:11.5px;color:var(--mute);margin-top:2px}
+.qa36-cluster,.qa36-single{padding:9px 14px;border-bottom:1px solid #eef1f0;background:#fff}
+.qa36-cluster .nm,.qa36-single .nm{font-weight:600}
+.qa36-cluster .meta,.qa36-single .meta{font-size:11.5px;color:var(--mute);margin-top:2px}
+.qa36-members{font-size:11.5px;margin-top:5px;line-height:1.45;color:var(--ink)}
+.qa36-badge{display:inline-block;border:1px solid var(--line);padding:1px 5px;font-size:11px;margin-left:6px;color:var(--mute);background:#fff}
+.qa36-badge.partial{border-color:#c9dfe1;color:var(--tidal-deep);background:var(--tidal-tint)}
+.qa36-save{white-space:nowrap;font-size:12px}
+.qa36-ready-detail{font-size:11px;color:var(--mute);margin-left:6px}
+</style>
+
+<script>
+(function(){
+  function q36CurrentList(){
+    if(typeof listId==='undefined'||!listId||typeof LISTS==='undefined'||!Array.isArray(LISTS))return null;
+    return LISTS.find(x=>x.id===listId)||null;
+  }
+  function q36ResolveTlex(){
+    if(typeof TID==='undefined'||!TID||!TID.clusters)return {clusters:[],singles:[],list:null};
+    const list=q36CurrentList(), L=list&&list.set instanceof Set?list.set:null;
+    const represented=new Set(), clusters=[];
+    for(const [id,c] of Object.entries(TID.clusters)){
+      const all=Array.isArray(c.addresses)?c.addresses:[];
+      const visible=L?all.filter(a=>L.has(a)):[...all];
+      if(L&&!visible.length)continue;
+      visible.forEach(a=>represented.add(a));
+      let name=id;
+      try{ if(typeof titleOf==='function'&&c.starts_at)name=titleOf(c.starts_at); }catch(e){}
+      clusters.push({id,name,total:all.length,visible,canonical:c});
+    }
+    const singles=L?[...L].filter(a=>!represented.has(a)):[];
+    return {clusters,singles,list};
+  }
+  function q36Label(a){
+    try{ if(typeof sp31Label==='function')return sp31Label(a); }catch(e){}
+    let ref=a,rest='',text='';
+    try{
+      if(typeof refOf==='function'){
+        const r=refOf(a),i=r.indexOf(' – ');
+        ref=i<0?r:r.slice(0,i);rest=i<0?'':r.slice(i+3);
+      }
+      if(typeof byLoc!=='undefined'&&byLoc&&byLoc.get(a)){const p=byLoc.get(a);text=p.text||p.heading||'';}
+    }catch(e){}
+    return {ref,rest,text};
+  }
+  function q36Cat(st){try{return typeof setCategory==='function'?setCategory(st):(st&&st.category)||'requirement';}catch(e){return (st&&st.category)||'requirement';}}
+
+  function q36RenderResolved(){
+    if(typeof mode!=='undefined'&&mode!=='shape')return;
+    const cp=document.getElementById('cpanel'); if(!cp)return;
+    cp.querySelectorAll('.qa36-resolved,.tlex32-zone').forEach(x=>x.remove());
+    const tog=document.getElementById('tidtog'); if(tog&&!tog.checked)return;
+
+    const r=q36ResolveTlex(); if(!r.clusters.length&&!r.singles.length)return;
+    const wrap=document.createElement('div'); wrap.className='qa36-resolved';
+    let h=`<div class="qa36-head"><div class="title">TLEX resolved view</div><div class="meta">${
+      r.list?`${fmt(r.clusters.length)} related TLEX clusters · ${fmt(r.singles.length)} standalone provisions in “${esc(r.list.name)}”`
+            :`${fmt(r.clusters.length)} canonical TLEX clusters · no Scope List selected`
+    }</div></div>`;
+    for(const c of r.clusters){
+      const partial=!!(r.list&&c.visible.length!==c.total);
+      h+=`<div class="qa36-cluster">
+        <div class="nm">${esc(c.name)}<span class="qa36-badge ${partial?'partial':''}">${
+          r.list?`${fmt(c.visible.length)} of ${fmt(c.total)} in this List`:`${fmt(c.total)} provisions`
+        }</span></div>
+        <div class="meta">${esc(c.id)}</div>
+        <div class="qa36-members">${c.visible.slice(0,8).map(a=>esc(q36Label(a).ref)).join(' · ')}${c.visible.length>8?' · …':''}</div>
+        <div style="margin-top:7px"><button data-q36use="${esc(c.id)}">Use as baseline</button></div>
+      </div>`;
+    }
+    if(r.singles.length){
+      h+=`<div class="qa36-head"><div class="title">Standalone Provisions in this List</div><div class="meta">${fmt(r.singles.length)} not represented by the related TLEX clusters</div></div>`;
+      for(const a of r.singles){
+        const x=q36Label(a);
+        h+=`<div class="qa36-single"><div class="nm">${esc(x.ref)}</div><div class="meta">${esc(x.rest)}${x.text?` · ${esc(typeof cutTo==='function'?cutTo(x.text,100):x.text.slice(0,100))}`:''}</div></div>`;
+      }
+    }
+    wrap.innerHTML=h; cp.appendChild(wrap);
+    wrap.querySelectorAll('[data-q36use]').forEach(b=>b.onclick=()=>{
+      const c=r.clusters.find(x=>x.id===b.dataset.q36use);
+      const st=typeof sp31CurrentSet==='function'?sp31CurrentSet():(typeof CS==='function'?CS():null);
+      if(!c||!st)return;
+      st.c=st.c||{};st.next=st.next||1;
+      const cid='C'+(st.next++);
+      st.c[cid]={name:c.name,type:q36Cat(st),m:[...c.visible],from:c.id,fromKey:c.canonical.cluster_key||null,fromBuild:(typeof D!=='undefined'&&D)?D.build:null,baseline:'tidalex'};
+      if('saved' in st)st.saved=false;
+      if(typeof curC!=='undefined')curC=cid;
+      if(typeof recompute==='function')recompute();
+      if(typeof render==='function')render();
+    });
+  }
+
+  if(typeof dep33Invalidate==='function'){
+    dep33Invalidate=function(key,reason){
+      const m=typeof dep33Map==='function'?dep33Map():null;if(!m)return;
+      const s=typeof dep33Status==='function'?dep33Status(key):null;if(!s)return;
+      const had=!!(s.assessment&&(s.assessment.state==='assessed'||(m.assessmentAudit&&m.assessmentAudit[key]&&m.assessmentAudit[key].length)));
+      if(s.ready){s.ready.state='not_reviewed';s.ready.reviewedAt=null;}
+      if(s.assessment){
+        if(s.assessment.state==='assessed'){
+          m.assessmentAudit[key]=m.assessmentAudit[key]||[];
+          m.assessmentAudit[key].push({state:'superseded',assessedAt:s.assessment.assessedAt,invalidatedAt:new Date().toISOString(),reason:reason||'Grouping inputs changed'});
+        }
+        s.assessment.state='not_assessed';s.assessment.assessedAt=null;
+        s.assessment.invalidatedAt=had?new Date().toISOString():null;
+        s.assessment.reason=had?(reason||'Grouping inputs changed'):null;
+      }
+    };
+  }
+
+  function q36SaveState(){
+    if(typeof mode!=='undefined'&&mode!=='conn')return;
+    const top=document.querySelector('.lcm20-top');if(!top)return;
+    top.querySelectorAll('.auto25,#auto25status,#auto29status,.lcm20-state,.obj22state,#qa36-save-state').forEach(x=>x.remove());
+    [...top.children].forEach(el=>{
+      const t=(el.textContent||'').trim();
+      if(/saved automatically|unsaved changes|✓ saved|autosave on/i.test(t))el.remove();
+    });
+    const span=document.createElement('span');span.id='qa36-save-state';span.className='qa36-save';
+    const s=typeof AUTO25_STATE!=='undefined'?AUTO25_STATE:'saved';
+    span.textContent=s==='saving'?'Saving…':s==='error'?'⚠ Not saved':'✓ Saved automatically';
+    const close=top.querySelector('#close20');top.insertBefore(span,close||null);
+  }
+
+  function q36Readiness(){
+    if(typeof dep33All!=='function')return;
+    const all=dep33All(),agg=document.getElementById('req26mapstatus');
+    if(agg)agg.innerHTML=`<b>${fmt(all.ready)} of ${fmt(all.total)}</b> items ready <span class="qa36-ready-detail">${fmt(all.clusters)} Requirement Clusters · ${fmt(all.singles)} standalone Requirement Provision${all.singles===1?'':'s'}</span>`;
+  }
+
+  function q36FixPreview(){
+    const body=document.getElementById('dlgbody');if(!body)return;
+    body.querySelectorAll('.dep34-item .ref,.dep34-card .nm').forEach(el=>{
+      const t=el.textContent||'';
+      if(/<\/?b>/i.test(t))el.textContent=t.replace(/<\/?b>/gi,'');
+    });
+  }
+
+  function q36RemoveObsolete(){
+    document.querySelectorAll('button').forEach(b=>{
+      const t=(b.textContent||'').trim();
+      if(/^clear all$/i.test(t)||/review\s*&\s*finalise/i.test(t)||/^finalise requirement$/i.test(t))b.remove();
+    });
+    const c=document.getElementById('b-clear');if(c)c.remove();
+  }
+
+  if(typeof renderPanel==='function'){const f=renderPanel;renderPanel=function(){f.apply(this,arguments);setTimeout(q36RenderResolved,0);};}
+  if(typeof renderConn==='function'){const f=renderConn;renderConn=function(){f.apply(this,arguments);setTimeout(()=>{q36RemoveObsolete();q36SaveState();q36Readiness();q36FixPreview();},0);};}
+  if(typeof renderLeft==='function'){const f=renderLeft;renderLeft=function(){f.apply(this,arguments);setTimeout(()=>{q36RemoveObsolete();q36SaveState();q36Readiness();},0);};}
+
+  document.addEventListener('change',e=>{
+    if(e.target&&(e.target.id==='listsel'||e.target.id==='tidtog'))setTimeout(q36RenderResolved,0);
+  });
+  document.addEventListener('click',()=>setTimeout(q36FixPreview,0));
+
+  setTimeout(()=>{try{q36RemoveObsolete();q36RenderResolved();q36SaveState();q36Readiness();q36FixPreview();}catch(e){console.error(e)}},0);
 })();
 </script>
 
